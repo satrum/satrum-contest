@@ -1,0 +1,9 @@
+pax_global_header
+redis-5.0.3.tar.gz
+windows-redis/
+
+#contest uploaded files:
+contest/submit_files/
+
+#db:
+contest/db.sqlite3

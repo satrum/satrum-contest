@@ -1,0 +1,169 @@
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-3 list-group-item">
+			<h4 class="mb-2 text-center">{{contest.title}}</h4>
+			<div class="d-flex justify-content-between">
+				<span>Status:</span>
+				<span>{{contest.get_status_display}}</span>
+			</div>
+			<div class="d-flex justify-content-between">
+				<span>Org:</span>
+				<span>{{contest.org}}</span>
+			</div>
+			<div class="d-flex justify-content-between">
+				<span>Owner:</span>
+				<span>{{contest.owner}}</span>
+			</div>
+			<h5 class="mb-2 text-center">Timeline</h5>
+			<div class="d-flex justify-content-between">
+				<small>Created:</small>
+				<small>{{contest.creation_time.date}}</small>
+			</div>
+			<div class="d-flex justify-content-between">
+				<small>Registration ends:</small>
+				<small>{{contest.reg_deadline.date}}</small>
+			</div>
+			
+			<!-- <img alt="Bootstrap Image Preview" src="https://www.layoutit.com/img/sports-q-c-140-140-3.jpg" class="rounded" /> -->
+		</div>
+		<div class="col-md-9">
+			<div class="tabbable" id="tabs-60466">
+				<ul class="nav nav-tabs">
+					<li class="nav-item">
+						<a class="nav-link {% if page == 'info' %}active show{% endif %}" href="{{ contest.get_absolute_url }}" data-toggle="tab">Info</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link {% if page == 'lb' %}active show{% endif %}" href="{{ contest.get_lb_url }}" data-toggle="tab">Leaderboard</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link {% if page == 'subs' %}active show{% endif %}" href="{{ contest.get_sub_url }}" data-toggle="tab">Submissions</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link {% if page == 'upload' %}active show{% endif %}" href="{{ contest.get_upload_url }}" data-toggle="tab">Upload submit</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#tab2" data-toggle="tab">Dataset</a>
+					</li>
+				</ul>
+				<div class="tab-content">
+					<div class="tab-pane active" id="panel-169223">
+						{% if page == 'info' %}<h5>Description, rules, timeline, estimator</h5>{% endif %}
+						{% if page == 'lb' %}<h5>Leaderboard</h5>{% endif %}
+						{% if page == 'subs' %}<h5>User Submissions</h5>{% endif %}
+						{% if page == 'upload' %}<h5>Write description and upload Submit </h5>{% endif %}
+					</div>
+					{% if page == 'info' %}
+						<div class="jumbotron card card-block">
+						{{contest.text|linebreaks}}
+						</div>
+					{% endif %}
+					{% if page == 'lb' %}
+					<div class="well">
+						<table class="table table-bordered table-hover">
+							<thead>
+								<tr>
+									<th>place</th>
+									<th>name</th>
+									<th>date</th>
+									<th>submits</th>
+									<th>score</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for line in lb %}
+								{% if line.lb_rank == 'g' %}
+								<tr class="table-warning">
+								{% elif line.lb_rank == 's' %}
+								<tr class="table-active">
+								{% elif line.lb_rank == 'b' %}
+								<tr class="table-danger">
+								{% else %}
+								<tr class="table-success">
+								{% endif %}
+									<td>{{line.get_lb_rank_display}}</td>
+									<td>{{line.user}}</td>
+									<td>{{line.lb_time}}</td>
+									<td>{{line.lb_sub_count}}</td>
+									<td>{{line.lb_score}}</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+					{% endif %}
+					{% if page == 'subs' %}
+					<div class="well">
+						<table class="table table-bordered table-hover">
+							<thead>
+								<tr>
+									<th>result</th>
+									<th>score</th>
+									<th>time</th>
+									<th>text</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for line in submits %}
+								{% if line.sub_status == 'u' %}
+								<tr class="table-warning">
+								{% elif line.sub_status == 'c' %}
+								<tr class="table-success">
+								{% elif line.sub_status == 'e' %}
+								<tr class="table-danger">
+								{% else %}
+								<tr class="table-active">
+								{% endif %}
+									<td>{{line.get_sub_status_display}}</td>
+									<td>{{line.sub_score}}</td>
+									<td>{{line.sub_time}}</td>
+									<td>{{line.sub_text}}</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+					{% endif %}
+					{% if page == 'upload' %}
+					{% load crispy_forms_tags %}
+					<!-- <div class="crispyform"> -->
+						<form method="post" enctype="multipart/form-data">
+							{% csrf_token %}
+							<!-- {{ form }} -->
+							{% crispy form form.helper %}
+							<!-- <div>{{ form.sub_text }}</div> -->
+							<!-- <div>{{ form.filepath }}</div> -->
+							<!-- {{ form.filepath.errors }} -->
+							<!-- <button type="submit" class="btn btn-success" >Upload</button> -->
+							<!-- {% if form.errors and form.non_field_errors %} -->
+								<!-- <div id="errorMsg"> -->
+									<!-- {{ form.sub_text.errors }} -->
+									<!-- {{ form.filepath.errors }} -->
+									<!-- {% if form_error_title %}<h3>{{ form_error_title }}</h3>{% endif %} -->
+									<!-- <ol> -->
+									<!-- {{ form.non_field_errors|unordered_list }} -->
+									<!-- </ol> -->
+								<!-- </div> -->
+							<!-- {% endif %} -->
+							{% if form.errors %}
+								{% for field in form %}
+									{% for error in field.errors %}
+										<div class="alert alert-danger">
+											<strong>{{ error|escape }}</strong>
+										</div>
+									{% endfor %}
+								{% endfor %}
+								{% for error in form.non_field_errors %}
+									<div class="alert alert-danger">
+										<strong>{{ error|escape }}</strong>
+									</div>
+								{% endfor %}
+							{% endif %}
+						</form>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+			
+		</div>
+	</div>
+</div>

@@ -1,0 +1,50 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+<div class="log_in_p">
+{% if form.errors %}
+<p class="log_2d">Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+    <p class="log_2d">Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</p>
+    {% else %}
+    <h3>Please login to see this page:</h3>
+    {% endif %}
+{% endif %}
+
+<!-- <a href="{% url 'social:begin' 'github' %}">Login with GitHub</a><br> -->
+<a href="{% url 'social:begin' 'reddit' %}?next={% url 'index' %}" ><div class="reddit"><img src="{% static '/images/Reddit.png'%}"><p>Login with Reddit</p></div></a>
+
+<a href="{% url 'social:begin' 'twitter' %}?next={% url 'index' %}"><div class="twitter"><img src="{% static '/images/twitter.png'%}"><p>Login with Twitter</p></div></a>
+
+<form method="post" action="{% url 'login' %}">
+{% csrf_token %}
+<div class="log_username">{{ form.username.label_tag }}</div>
+ <input type="text"
+       name="{{ form.username.name }}"
+       id="{{ form.username.id_for_label }}"
+       {% if form.username.value != None %}value="{{ form.username.value|stringformat:'s' }}"{% endif %}
+       maxlength="{{ form.username.field.max_length }}"
+       {% if form.username.field.required %}required{% endif %}>
+
+<div class="log_username">{{ form.password.label_tag }}</div>
+ <input type="password"
+       name="{{ form.password.name }}"
+       id="{{ form.password.id_for_label }}"
+       {% if form.password.value != None %}value="{{ form.password.value|stringformat:'s' }}"{% endif %}
+       maxlength="{{ form.password.field.max_length }}"
+       {% if form.password.field.required %}required{% endif %}>
+
+
+<input type="submit" class="log_sub" value="login" />
+<input type="hidden" name="next" value="{% url 'index' %}" />
+</form>
+
+{# Assumes you setup the password_reset view in your URLconf #}
+<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+</div>
+{% endblock %}

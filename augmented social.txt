@@ -1,0 +1,319 @@
+[CC] Continuous challenge (Time Series prediction):
+competition
+contest
+
+Основная идея:
+Соревнования по Data Science с постоянно растущим датасетом во времени, доступным по API.
+Может быть использован компаниями как хаб для анализа данных, без необходимости показа модели. Могут делать заказ.
+Фичи:
+Разные правила участия на разных этапах
+Этапы расписания
+API сервиса
+API для получения внешних данных
+Расчет очков периодический
+Ставки
+Форум участников
+Страница участника, портфолио
+
+проблемы:
+Запуск кода участников периодический, организуют сами
+Привлечение других проектов
+Привлечение спонсоров
+Привлечение рекламы
+
+Примеры датасетов:
+1. Финансы (cryptocurrency, equity, assets, funds, trade strategy, portfolio management)
+2. Покупки товаров и услуг
+3. Рекомендации онлан сервисов
+4. Игровые матчи спортивные и киберспортивные
+5. Научные данные (climate prediction)
+6. Мониторинг (логи серверов, траффик)
+7. Социальная активность (публикации, комментарии, лайки)
+
+Получение данных:
+Выдавать на периодической основе за период или все после определенной даты
+Выдача происходит по API например через request (тут нужен DjangoRestAPI , сбор и анализ статистики запросов, борьба с перегрузками)
+
+
+Компоненты:
+	Models:
+	User/Profile
+	Contest (owner, organization, timeline, status, stats)
+	Rule (ограничения соревнования, период, сабмишшенов за период и т.п.)
+	Dataset
+	Submission (files uploaded, check file, path and access to file)
+	UserLeaderboard (user+contest info : score, submission counts, last time update, rank)
+	Score
+	Bet
+	Metric Classes (for calc submits)
+	Estimator Classes (Baseline, SOTA)
+	Pages:
+	ok signup
+	ok login
+	base - nav menu, login/signup. need: base info , nav social buttons
+	conpetitions list ContestListView need: with filters
+	competition page ContestDetailView - rules, description, timeline, status, owner, org
+		image
+		timeline progress bar
+		badged status
+		link to user profile
+		link to org competitions
+		rules, estimator info
+	competition page - LB table
+		https://www.highcharts.com/demo/line-basic для графика распределения мест
+		model brand - имя модели при участии в соревновании для формировния baseline и SOTA
+	AUTH competition page - submissions table
+		form for submissions (text about API, check timeline) file upload https://docs.djangoproject.com/en/2.1/topics/http/file-uploads/
+		ok validate filesize(<10MB) and .csv/.tsv filename
+		extend form
+		ok change name on upload (/contest_id/userid.csv)
+		progress bar upload 
+			https://github.com/ouhouhsami/django-progressbarupload
+			https://simpleisbetterthancomplex.com/tutorial/2016/11/22/django-multiple-file-upload-using-ajax.html
+		filter by status
+		histogram with timeline
+		submission for Continuous Contest
+		share model
+	competition page - dataset + target (type of contest, metric)
+	api description with examples
+	account page (internal user settings, password reset, social auth and others )
+	profile page (public info access, rank, stats, external rank - kaggle and others)
+	forum page
+	Tasks:
+	check_submit(id) - check format and lines, check submission count, check timeline
+	sumbit - calc metric
+	api: 
+	#C - client, W - worker + - for simple contest only
+	CW+ token auth
+	C+ create dataset
+	C update dataset
+	W+ download dataset + target (type of contest, metric)
+	W+ upload submit (task: calc metric)
+	C download submit  ($)
+	CW download analysis
+	W share model (public or private)
+	C download model ($)
+	CW betting
+	
+что нужно сделать:
+ok login/logout https://wsvincent.com/django-user-authentication-tutorial-login-and-logout/
+ok signup/registration https://wsvincent.com/django-user-authentication-tutorial-signup/
+	git https://github.com/wsvincent/django-auth-tutorial
+ok custom login both with email or username https://docs.djangoproject.com/en/2.1/topics/auth/customizing/
+ok bootstrap design for pages 
+	no https://django-bootstrap4.readthedocs.io/en/latest/quickstart.html
+	yes http://django-crispy-forms.readthedocs.io/ and tutorial https://simpleisbetterthancomplex.com/tutorial/2018/08/13/how-to-use-bootstrap-4-forms-with-django.html
+bootstrap design: https://www.layoutit.com/build
+bootstrap docs:   https://getbootstrap.com/docs/4.0
+	
+password reset https://wsvincent.com/django-user-authentication-tutorial-password-reset/
+extend user model https://wsvincent.com/django-custom-user-model-tutorial/
+base_template
+index page
+
+------------------
+manuals:
+https://github.com/DjangoGirls/tutorial
+https://docs.djangoproject.com/en/2.1/intro
+https://github.com/balloonio/2do1ist - signup, bootstrap, ajax
+
+services:
+github
+PythonAnywhere — это сервис по запуску кода на Python в облаке, бесплатно для маленьких проектов. www.pythonanywhere.com
+
+C:\Users\vinch\ml\satrum-contest>
+python -m venv djangovenv
+djangovenv\Scripts\activate
+python -m pip install --upgrade pip
+pip install django
+
+или установить так:
+pip freeze > requirements.txt
+	Django==2.1.7
+	pytz==2018.9
+python -m pip install -r requirements.txt
+
+django-admin --version
+2.1.7
+
+django-admin startproject contest
+cd contest
+
+settings.py:
+https://docs.djangoproject.com/en/1.11/ref/settings/#language-code
+TIME_ZONE = 'Europe/Moscow'
+LANGUAGE_CODE = 'ru-ru'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+python manage.py migrate #initialized database
+python manage.py runserver 0:8000 #for path http://127.0.0.1:8000/ or http://localhost:8000/
+
+create new app:
+https://docs.djangoproject.com/en/2.1/intro/tutorial01/
+python manage.py startapp challenge
+#INSTALLED_APPS 'challenge'
+
+create models: in file challenge/models.py
+	class Contest
+after:
+python manage.py makemigrations challenge
+python manage.py migrate challenge
+add to admin.py: 
+#url for admin http://127.0.0.1:8000/admin/ https://docs.djangoproject.com/en/1.11/ref/contrib/admin/
+from .models import Contest
+admin.site.register(Contest)
+add superuser:
+python manage.py createsuperuser (admin, admin@localhost, 12345678)
+
+
+add to contest/urls.py:
+from django.urls import include
+urlpatterns += [path('', include('challenge.urls')),]
+
+create and add to challenge/urls.py: #create blank
+from django.urls import path
+from . import views
+
+urlpatterns = [
+	path('', views.index, name='index'),
+	]
+	
+add to contest/views.py:
+index()
+
+create folder challenge/templates/challenge and .html files inside
+index.html
+
+------------
+auth:
+contest/ulrs.py
+path('accounts/', include('django.contrib.auth.urls')), # auth
+create templates/registration/login.html
+contest/settings.py
+in TEMPLATES 'DIRS': [os.path.join(BASE_DIR, 'templates')],
+LOGIN_REDIRECT_URL = '/'
+see at http://127.0.0.1:8000/accounts/login/
+-------------
+signup:
+challenge/urls.py
+path('signup/', views.SignUp.as_view(), name='signup'),
+view:views.SignUp()
+form:challenge/templates/signup.html
+-------------
+custom login (both email or username):
+contest/settings.py
++AUTHENTICATION_BACKENDS "challenge.auth.EmailOrUsernameModelBackend"
+challenge/auth.py
+class EmailOrUsernameModelBackend
+---------------
+bootstrap test1:
+pip install django-bootstrap4
+#INSTALLED_APPS 'bootstrap4'
+{% load bootstrap4 %} in templates
+----------------
+django-crispy-forms bootstrap test2: https://simpleisbetterthancomplex.com/tutorial/2018/08/13/how-to-use-bootstrap-4-forms-with-django.html
+pip install django-crispy-forms
+#INSTALLED_APPS 'crispy_forms'
+#CRISPY_TEMPLATE_PACK = 'bootstrap4'
+in base template:
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+in page templates:
+{% load crispy_forms_tags %}
+bootstrap 4 docs and examples:
+https://getbootstrap.com/docs/4.0/components/list-group/
+http://bootstrap-4.ru/docs/4.3.1
+bootstrap gui editor:
+https://www.layoutit.com/build
+
+------------------------------------
+celery:
+cd c:\Users\vinch\ml\satrum-contest\
+djangovenv\Scripts\activate
+pip install redis
+pip install celery
+start redis: https://redis.io/topics/quickstart
+#redis-server
+#https://github.com/MicrosoftArchive/redis - 2016 windows port
+Redis-x64-3.2.100.zip
+cd windows-redis/
+start: redis-server
+
+https://redis.io/download
+unpack, make and src/redis-server
+
+https://redislabs.com/blog/redis-on-windows-10/
+powershell:
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+reboot server
+install linux port for terminal:
+https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q?cid=msft_web_chart&activetab=pivot:overviewtab
+
+contest/contest/settings.py:
+# REDIS related settings 
+REDIS_HOST = 'localhost'
+REDIS_PORT = '6379'
+CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600} 
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+
+tutorials:
+http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html
+	https://github.com/celery/celery/tree/master/examples/django/
+	
+https://simpleisbetterthancomplex.com/tutorial/2017/08/20/how-to-use-celery-with-django.html
+
+edit:
+contest/contest/celery.py
+contest/contest/__init__.py
+contest/challenge/tasks.py - shared app tasks
+
+	contest/contest/settings.py:
+	from __future__ import absolute_import, unicode_literals
+	# ^^^ The above is required if you want to import from the celery
+	# library.  If you don't have this then `from celery.schedules import`
+	# becomes `proj.celery.schedules` in Python 2.x since it allows
+	# for relative imports by default.
+
+	# Celery settings
+	CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+
+	#: Only add pickle to this list if your broker is secured
+	#: from unwanted access (see userguide/security.html)
+	CELERY_ACCEPT_CONTENT = ['json']
+	CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite'
+	CELERY_TASK_SERIALIZER = 'json'
+
+start worker: (celery worker --help)
+celery -A your_app_name[contest] worker -l info
+on windows:
+celery -A your_app_name[contest] worker --pool=solo -l info
+
+call the task from view/models:
+from .tasks import function / from challenge.tasks import function
+res=function.delay(args)
+res.get()
+
+
+----------------------
+https://hub.packtpub.com/introduction-titanic-datasets/
+https://github.com/alexperrier/packt-aml/blob/master/ch4/titanic.csv
+Here’s a brief summary of the 14attributes:
+    pclass: Passenger class (1 = 1st; 2 = 2nd; 3 = 3rd)
+    survival: A Boolean indicating whether the passenger survived or not (0 = No; 1 = Yes); this is our target
+    name: A field rich in information as it contains title and family names
+    sex: male/female
+    age: Age, asignificant portion of values aremissing
+    sibsp: Number of siblings/spouses aboard
+    parch: Number of parents/children aboard
+    ticket: Ticket number.
+    fare: Passenger fare (British Pound).
+    cabin: Doesthe location of the cabin influence chances of survival?
+    embarked: Port of embarkation (C = Cherbourg; Q = Queenstown; S = Southampton)
+    boat: Lifeboat, many missing values
+    body: Body Identification Number
+    home.dest: Home/destination
+
+Take a look at http://campus.lakeforest.edu/frank/FILES/MLFfiles/Bio150/Titanic/TitanicMETA.pdf for more details on these variables.
+
+We have 1,309 records and 14 attributes, three of which we will discard. The home.dest attribute hastoo few existing values, the boat attribute is only present for passengers who have survived, and thebody attributeis only for passengers who have not survived. We will discard these three columnslater on while using the data schema.

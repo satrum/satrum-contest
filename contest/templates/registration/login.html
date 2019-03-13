@@ -1,0 +1,25 @@
+<!-- templates/registration/login.html -->
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Login to Contest{% endblock %}
+
+{% block content %}
+<h2>Login</h2>
+<form method="post" novalidate>
+  {% csrf_token %}
+  <!-- {{ form.as_p }} -->
+  <!-- {{ form|crispy }} -->
+    Use username or email
+	<div class="row">
+      <div class="col-6">
+        {{ form.username|as_crispy_field }}
+      </div>
+      <div class="col-6">
+        {{ form.password|as_crispy_field }}
+      </div>
+    </div>
+  <button type="submit" class="btn btn-success">Login</button>
+</form>
+{% endblock %}

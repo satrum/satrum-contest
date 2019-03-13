@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+<!-- {% load crispy_forms_tags %} -->
+
+{% block title %}Contests list{% endblock %}
+
+{% block content %}
+
+<div class="list-group">
+<!-- change in a class='active', add url -->
+{% for contest in contests %}
+  <!-- <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active"> -->
+  <a href="{{ contest.get_absolute_url }}" class="list-group-item list-group-item-action flex-column align-items-start"> 
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">{{contest.title}}</h5>
+      <small>Owner: {{contest.owner}} Org: {{contest.org}}</small>
+    </div>
+    <p class="mb-1">{{contest.text|truncatechars:200}}</p>
+    <small>{{contest.creation_time.date}}</small>
+	<span class="badge badge-success badge-pill">{{contest.get_status_display}}</span>
+	<!-- https://getbootstrap.com/docs/4.0/components/badge/ -->
+  </a>
+  <p></p>
+{% endfor %}
+</div>
+
+{% endblock %}
+
+
+
+
