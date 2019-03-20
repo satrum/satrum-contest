@@ -35,7 +35,7 @@ def check_submit(id):
 	submit = Submission.objects.get(id=id)
 	filepath = submit.filepath.path
 	file = open(os.path.join(settings.BASE_DIR, filepath))
-	linecount = len(file.readlines(  ))
+	linecount = len(file.readlines(  )) #count of lines in submit file
 	file.close()
 	print(linecount)
 	return linecount

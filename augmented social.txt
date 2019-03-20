@@ -29,6 +29,7 @@ API для получения внешних данных
 5. Научные данные (climate prediction)
 6. Мониторинг (логи серверов, траффик)
 7. Социальная активность (публикации, комментарии, лайки)
+8. Парсинг текстов с разных источников
 
 Получение данных:
 Выдавать на периодической основе за период или все после определенной даты
@@ -36,7 +37,8 @@ API для получения внешних данных
 
 
 Компоненты:
-	Models:
+
+Models:
 	User/Profile
 	Contest (owner, organization, timeline, status, stats)
 	Rule (ограничения соревнования, период, сабмишшенов за период и т.п.)
@@ -47,7 +49,8 @@ API для получения внешних данных
 	Bet
 	Metric Classes (for calc submits)
 	Estimator Classes (Baseline, SOTA)
-	Pages:
+	
+Pages:
 	ok signup
 	ok login
 	base - nav menu, login/signup. need: base info , nav social buttons
@@ -63,10 +66,10 @@ API для получения внешних данных
 		https://www.highcharts.com/demo/line-basic для графика распределения мест
 		model brand - имя модели при участии в соревновании для формировния baseline и SOTA
 	AUTH competition page - submissions table
-		form for submissions (text about API, check timeline) file upload https://docs.djangoproject.com/en/2.1/topics/http/file-uploads/
 		ok validate filesize(<10MB) and .csv/.tsv filename
-		extend form
 		ok change name on upload (/contest_id/userid.csv)
+		form for submissions (text about API, check timeline) file upload https://docs.djangoproject.com/en/2.1/topics/http/file-uploads/
+		extend form
 		progress bar upload 
 			https://github.com/ouhouhsami/django-progressbarupload
 			https://simpleisbetterthancomplex.com/tutorial/2016/11/22/django-multiple-file-upload-using-ajax.html
@@ -79,10 +82,13 @@ API для получения внешних данных
 	account page (internal user settings, password reset, social auth and others )
 	profile page (public info access, rank, stats, external rank - kaggle and others)
 	forum page
-	Tasks:
-	check_submit(id) - check format and lines, check submission count, check timeline
+	
+Tasks:
+	check_submit(id) - check format and lines, check submission count, check timeline, check dataset availability
 	sumbit - calc metric
-	api: 
+	check dataset - check timeline (дополнительные данные или замена данных только до первых submissions)
+
+api: 
 	#C - client, W - worker + - for simple contest only
 	CW+ token auth
 	C+ create dataset
@@ -103,13 +109,19 @@ ok custom login both with email or username https://docs.djangoproject.com/en/2.
 ok bootstrap design for pages 
 	no https://django-bootstrap4.readthedocs.io/en/latest/quickstart.html
 	yes http://django-crispy-forms.readthedocs.io/ and tutorial https://simpleisbetterthancomplex.com/tutorial/2018/08/13/how-to-use-bootstrap-4-forms-with-django.html
-bootstrap design: https://www.layoutit.com/build
-bootstrap docs:   https://getbootstrap.com/docs/4.0
+	bootstrap design: https://www.layoutit.com/build
+	bootstrap docs:   https://getbootstrap.com/docs/4.0
 	
 password reset https://wsvincent.com/django-user-authentication-tutorial-password-reset/
 extend user model https://wsvincent.com/django-custom-user-model-tutorial/
-base_template
+ok base_template
 index page
+github - readme
+dataset desigh (see on kaggle)
+dataset page in contest
+dataset 1 - titanic (csv, baseline code tutorial )
+dataset 2 - time series like bitcoin price + tx info
+profile page
 
 ------------------
 manuals:
@@ -262,7 +274,10 @@ http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html
 	https://github.com/celery/celery/tree/master/examples/django/
 	
 https://simpleisbetterthancomplex.com/tutorial/2017/08/20/how-to-use-celery-with-django.html
+	Managing The Worker Process in Production with Supervisord
 
+https://khashtamov.com/ru/celery-best-practices/
+	
 edit:
 contest/contest/celery.py
 contest/contest/__init__.py
@@ -293,6 +308,10 @@ call the task from view/models:
 from .tasks import function / from challenge.tasks import function
 res=function.delay(args)
 res.get()
+
+------------------
+github repository:
+https://github.com/satrum/satrum-contest public
 
 
 ----------------------
